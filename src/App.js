@@ -8,7 +8,8 @@ import './Main.css';
 
 
 function App() {
-  
+  const [devs, setdevs] = useState([]);
+
   const [github_username, setGithubuserneme] = useState('');
   const [techs, setTechs] = useState('');
   const [latitude, setLatitude] = useState('');
@@ -33,6 +34,16 @@ function App() {
     )
   }, []);
 
+  useEffect(() => {
+    async function loadDevs() {
+      const response = await api.get('/devs');
+      setdevs(response.data);
+    }
+
+    loadDevs();
+
+  }, []); //passo apenas array vazio caso eu queira que execute apenas uma vez
+
 
   async function handleSddDev(e){
     e.preventDefault();
@@ -45,6 +56,8 @@ function App() {
     })
     setGithubuserneme('');
     setTechs('');
+
+    setdevs([...devs, response.data]);
   }
 
 
@@ -102,51 +115,22 @@ function App() {
         </form>
       </aside>
       <main>
-        <ul>   
-          <li className="dev-item">
-            <header>
-              <img src="https://avatars0.githubusercontent.com/u/46923915?s=460&v=4" alt="ricardo campos"/>
-              <div className="user-info">
-                <strong>Ricardo Campos</strong>
-                <span>ReactJS, React Native, Node.js</span>
-              </div>
-            </header>
-            <p>O segredo da felicidade é a liberdade, o segredo da liberdade, coragem!</p>
-            <a href="https://github.com/ricardocvel">Acessar Perfio no GitHub </a>
-          </li>
-          <li className="dev-item">
-            <header>
-              <img src="https://avatars0.githubusercontent.com/u/46923915?s=460&v=4" alt="ricardo campos"/>
-              <div className="user-info">
-                <strong>Ricardo Campos</strong>
-                <span>ReactJS, React Native, Node.js</span>
-              </div>
-            </header>
-            <p>O segredo da felicidade é a liberdade, o segredo da liberdade, coragem!</p>
-            <a href="https://github.com/ricardocvel">Acessar Perfio no GitHub </a>
-          </li>
-          <li className="dev-item">
-            <header>
-              <img src="https://avatars0.githubusercontent.com/u/46923915?s=460&v=4" alt="ricardo campos"/>
-              <div className="user-info">
-                <strong>Ricardo Campos</strong>
-                <span>ReactJS, React Native, Node.js</span>
-              </div>
-            </header>
-            <p>O segredo da felicidade é a liberdade, o segredo da liberdade, coragem!</p>
-            <a href="https://github.com/ricardocvel">Acessar Perfio no GitHub </a>
-          </li>
-          <li className="dev-item">
-            <header>
-              <img src="https://avatars0.githubusercontent.com/u/46923915?s=460&v=4" alt="ricardo campos"/>
-              <div className="user-info">
-                <strong>Ricardo Campos</strong>
-                <span>ReactJS, React Native, Node.js</span>
-              </div>
-            </header>
-            <p>O segredo da felicidade é a liberdade, o segredo da liberdade, coragem!</p>
-            <a href="https://github.com/ricardocvel">Acessar Perfio no GitHub </a>
-          </li>
+        <ul>
+          {devs.map(dev => (  
+
+            <li  key={dev._id} className="dev-item">
+              <header>
+                <img src={dev.avatar_url} alt={dev.name}/>
+                <div className="user-info">
+                  <strong>{dev.name}</strong>
+                  <span>{dev.techs.join(', ')}</span>  
+                </div>
+              </header>
+              <p>{dev.bio}</p>
+              <a href={`https://github.com/${dev.github_username}`}>Acessar Perfio no GitHub </a>
+            </li>
+
+          ))}
         </ul>
       </main>
     </div>
@@ -154,3 +138,6 @@ function App() {
 }
 
 export default App;
+
+//nao colocar chaves na => , pois este é o retorno da função, com chaves é para o corpo
+//<span>{dev.techs.join(', ')}</span>     ==   juntando o array e o separando por virgula e espaço
