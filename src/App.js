@@ -1,13 +1,16 @@
 import React, {useEffect, useState} from 'react';
+import api from './services/api';
 
 import './global.css';
 import './App.css';
 import './Sidebar.css';
 import './Main.css';
 
+import DevItem from './componets/Devitem';
 
 function App() {
-  
+  const [devs, setdevs] = useState([]);
+
   const [github_username, setGithubuserneme] = useState('');
   const [techs, setTechs] = useState('');
   const [latitude, setLatitude] = useState('');
@@ -32,10 +35,33 @@ function App() {
     )
   }, []);
 
+  useEffect(() => {
+    async function loadDevs() {
+      const response = await api.get('/devs');
+      setdevs(response.data);
+    }
+
+    loadDevs();
+
+  }, []); //passo apenas array vazio caso eu queira que execute apenas uma vez
+
 
   async function handleSddDev(e){
     e.preventDefault();
+
+    const response = await api.post('/devs', {
+      github_username,
+      techs,
+      latitude,
+      longitude,
+    })
+    setGithubuserneme('');
+    setTechs('');
+
+    setdevs([...devs, response.data]);
   }
+
+
 
   return (
     <div id = "app">
@@ -90,51 +116,10 @@ function App() {
         </form>
       </aside>
       <main>
-        <ul>   
-          <li className="dev-item">
-            <header>
-              <img src="https://avatars0.githubusercontent.com/u/46923915?s=460&v=4" alt="ricardo campos"/>
-              <div className="user-info">
-                <strong>Ricardo Campos</strong>
-                <span>ReactJS, React Native, Node.js</span>
-              </div>
-            </header>
-            <p>O segredo da felicidade é a liberdade, o segredo da liberdade, coragem!</p>
-            <a href="https://github.com/ricardocvel">Acessar Perfio no GitHub </a>
-          </li>
-          <li className="dev-item">
-            <header>
-              <img src="https://avatars0.githubusercontent.com/u/46923915?s=460&v=4" alt="ricardo campos"/>
-              <div className="user-info">
-                <strong>Ricardo Campos</strong>
-                <span>ReactJS, React Native, Node.js</span>
-              </div>
-            </header>
-            <p>O segredo da felicidade é a liberdade, o segredo da liberdade, coragem!</p>
-            <a href="https://github.com/ricardocvel">Acessar Perfio no GitHub </a>
-          </li>
-          <li className="dev-item">
-            <header>
-              <img src="https://avatars0.githubusercontent.com/u/46923915?s=460&v=4" alt="ricardo campos"/>
-              <div className="user-info">
-                <strong>Ricardo Campos</strong>
-                <span>ReactJS, React Native, Node.js</span>
-              </div>
-            </header>
-            <p>O segredo da felicidade é a liberdade, o segredo da liberdade, coragem!</p>
-            <a href="https://github.com/ricardocvel">Acessar Perfio no GitHub </a>
-          </li>
-          <li className="dev-item">
-            <header>
-              <img src="https://avatars0.githubusercontent.com/u/46923915?s=460&v=4" alt="ricardo campos"/>
-              <div className="user-info">
-                <strong>Ricardo Campos</strong>
-                <span>ReactJS, React Native, Node.js</span>
-              </div>
-            </header>
-            <p>O segredo da felicidade é a liberdade, o segredo da liberdade, coragem!</p>
-            <a href="https://github.com/ricardocvel">Acessar Perfio no GitHub </a>
-          </li>
+        <ul>
+          {devs.map(dev => (  
+            <DevItem key={dev._id}  dev={dev}/>
+          ))}
         </ul>
       </main>
     </div>
@@ -142,3 +127,6 @@ function App() {
 }
 
 export default App;
+
+//nao colocar chaves na => , pois este é o retorno da função, com chaves é para o corpo
+//<span>{dev.techs.join(', ')}</span>     ==   juntando o array e o separando por virgula e espaço
